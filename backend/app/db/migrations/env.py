@@ -19,17 +19,6 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 DATABASE_URL = get_settings().async_database_url
 
-CHECKPOINT_TABLES = {
-    "checkpoints",
-    "checkpoint_blobs",
-    "checkpoint_writes",
-    "checkpoint_migrations",
-}
-
-
-def include_object(obj, name, type_, reflected, compare_to):
-    """Keep Alembic away from tables owned by LangGraph."""
-    return not (type_ == "table" and name in CHECKPOINT_TABLES)
 
 def run_migrations_offline() -> None:
     context.configure(

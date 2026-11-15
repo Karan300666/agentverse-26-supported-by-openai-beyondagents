@@ -1,15 +1,30 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { callTool, createVoiceSession, endVoiceSession, type ToolCallResult } from "@/lib/api";
 
 const REALTIME_CALLS_URL = "https://api.openai.com/v1/realtime/calls";
 
 export type CallStatus = "idle" | "connecting" | "connected" | "error";
+
 export type TranscriptLine = {
   id: string;
   role: "patient" | "assistant" | "tool";
   text: string;
+};
+
+export type PaymentDetails = {
+  amount: number;
+  currency: string;
+  doctor: string;
+  specialty: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+};
+
+type Options = {
+  /** Resolves true if the (simulated) payment was completed, false if the patient cancelled. */
+  requestPayment: (details: PaymentDetails) => Promise<boolean>;
 };
 
 type FunctionCallItem = {
@@ -19,17 +34,52 @@ type FunctionCallItem = {
   arguments?: string;
 };
 
-export function useVoiceCall() {
+function confirmationCodeOf(args: string): string | undefined {
+  try {
+    const parsed = JSON.parse(args) as { confirmation_code?: unknown };
+    return typeof parsed.confirmation_code === "string" ? parsed.confirmation_code : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function toPaymentDetails(data: Record<string, unknown> | null): PaymentDetails | null {
+  const summary = data?.summary as Record<string, unknown> | undefined;
+  if (!summary) return null;
+  const amount = Number(summary.fee_amount);
+  if (!Number.isFinite(amount)) return null;
+  return {
+    amount,
+    currency: String(summary.currency ?? "INR"),
+    doctor: String(summary.doctor ?? ""),
+    specialty: String(summary.specialty ?? ""),
+    date: String(summary.date ?? ""),
+    time: String(summary.time ?? ""),
+  };
+}
+
+export function useVoiceCall({ requestPayment }: Options) {
   const [status, setStatus] = useState<CallStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const [muted, setMuted] = useState(false);
+  const [connectedAt, setConnectedAt] = useState<number | null>(null);
+  const [pendingTools, setPendingTools] = useState(0);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionRef = useRef<{ id: string; phone: string } | null>(null);
   const handledCalls = useRef<Set<string>>(new Set());
+  const proposals = useRef<Map<string, PaymentDetails>>(new Map());
+  const mutedRef = useRef(false);
+  const requestPaymentRef = useRef(requestPayment);
+
+  useEffect(() => {
+    requestPaymentRef.current = requestPayment;
+  }, [requestPayment]);
 
   const addLine = useCallback((line: TranscriptLine) => {
     setTranscript((prev) => (prev.some((l) => l.id === line.id) ? prev : [...prev, line]));
@@ -40,12 +90,47 @@ export function useVoiceCall() {
     if (dc && dc.readyState === "open") dc.send(JSON.stringify(event));
   }, []);
 
+  /** Runs one tool call on the backend. A confirmed booking waits for the simulated payment first. */
+  const runToolCall = useCallback(async (name: string, args: string): Promise<ToolCallResult> => {
+    const session = sessionRef.current;
+    if (!session) throw new Error("No active session");
+
+    if (name === "book_appointment") {
+      const code = confirmationCodeOf(args);
+      const details = code ? proposals.current.get(code) : undefined;
+      if (code && details && details.amount > 0) {
+        const paid = await requestPaymentRef.current(details);
+        proposals.current.delete(code);
+        if (!paid) {
+          return {
+            ok: false,
+            data: null,
+            error: {
+              code: "payment_cancelled",
+              message: "The patient did not complete the payment, so nothing was booked.",
+            },
+          };
+        }
+      }
+    }
+
+    const result = await callTool(session.phone, session.id, name, args);
+
+    if (name === "book_appointment" && result.ok && result.data?.status === "confirmation_required") {
+      const code = result.data.confirmation_code;
+      const details = toPaymentDetails(result.data);
+      if (typeof code === "string" && details) proposals.current.set(code, details);
+    }
+    return result;
+  }, []);
+
   const handleToolCalls = useCallback(
     async (calls: FunctionCallItem[]) => {
       const fresh = calls.filter((c) => c.call_id && !handledCalls.current.has(c.call_id));
       if (fresh.length === 0) return;
       fresh.forEach((c) => handledCalls.current.add(c.call_id as string));
 
+      setPendingTools((n) => n + fresh.length);
       await Promise.all(
         fresh.map(async (call) => {
           const callId = call.call_id as string;
@@ -54,9 +139,7 @@ export function useVoiceCall() {
 
           let result: ToolCallResult;
           try {
-            const session = sessionRef.current;
-            if (!session) throw new Error("No active session");
-            result = await callTool(session.phone, session.id, name, args);
+            result = await runToolCall(name, args);
           } catch {
             result = {
               ok: false,
@@ -76,13 +159,14 @@ export function useVoiceCall() {
             type: "conversation.item.create",
             item: { type: "function_call_output", call_id: callId, output: JSON.stringify(result) },
           });
+          setPendingTools((n) => Math.max(0, n - 1));
         }),
       );
 
       // One response after all tool results are in.
       sendEvent({ type: "response.create" });
     },
-    [addLine, sendEvent],
+    [addLine, runToolCall, sendEvent],
   );
 
   const handleMessage = useCallback(
@@ -125,6 +209,10 @@ export function useVoiceCall() {
   );
 
   const cleanup = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     dcRef.current?.close();
     pcRef.current?.close();
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -133,6 +221,36 @@ export function useVoiceCall() {
     pcRef.current = null;
     streamRef.current = null;
     handledCalls.current.clear();
+    proposals.current.clear();
+    mutedRef.current = false;
+    setMuted(false);
+    setConnectedAt(null);
+    setPendingTools(0);
+  }, []);
+
+  const disconnect = useCallback(async () => {
+    const session = sessionRef.current;
+    cleanup();
+    sessionRef.current = null;
+    setStatus("idle");
+    if (session) {
+      try {
+        await endVoiceSession(session.phone, session.id);
+      } catch {
+        /* best effort */
+      }
+    }
+  }, [cleanup]);
+
+  const toggleMute = useCallback(() => {
+    const stream = streamRef.current;
+    if (!stream) return;
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    stream.getAudioTracks().forEach((track) => {
+      track.enabled = !next;
+    });
+    setMuted(next);
   }, []);
 
   const connect = useCallback(
@@ -143,6 +261,12 @@ export function useVoiceCall() {
       try {
         const session = await createVoiceSession(phone);
         sessionRef.current = { id: session.session_id, phone };
+
+        // Hang up automatically when the session's maximum length is reached.
+        timerRef.current = setTimeout(() => {
+          setError("The call reached its maximum length.");
+          void disconnect();
+        }, session.expires_in_seconds * 1000);
 
         const pc = new RTCPeerConnection();
         pcRef.current = pc;
@@ -161,7 +285,10 @@ export function useVoiceCall() {
         const dc = pc.createDataChannel("oai-events");
         dcRef.current = dc;
         dc.onmessage = handleMessage;
-        dc.onopen = () => setStatus("connected");
+        dc.onopen = () => {
+          setStatus("connected");
+          setConnectedAt(Date.now());
+        };
 
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
@@ -179,27 +306,49 @@ export function useVoiceCall() {
         }
         await pc.setRemoteDescription({ type: "answer", sdp: await sdpResponse.text() });
       } catch (err) {
+        const session = sessionRef.current;
         cleanup();
-        setError(err instanceof Error ? err.message : "Could not start the call");
+        sessionRef.current = null;
+
+        let message = "Could not start the call.";
+        if (err instanceof DOMException && err.name === "NotAllowedError") {
+          message = "Microphone access was blocked. Allow the microphone in your browser settings and try again.";
+        } else if (err instanceof DOMException && err.name === "NotFoundError") {
+          message = "No microphone was found on this device.";
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
+        setError(message);
         setStatus("error");
+
+        if (session) {
+          // Free the patient's single call slot if the connection failed after the session started.
+          void endVoiceSession(session.phone, session.id).catch(() => {});
+        }
       }
     },
-    [cleanup, handleMessage],
+    [cleanup, disconnect, handleMessage],
   );
 
-  const disconnect = useCallback(async () => {
-    const session = sessionRef.current;
-    cleanup();
-    sessionRef.current = null;
-    setStatus("idle");
-    if (session) {
-      try {
-        await endVoiceSession(session.phone, session.id);
-      } catch {
-        /* best effort */
-      }
-    }
-  }, [cleanup]);
+  // Best effort: end the session if the tab is closed during a call.
+  useEffect(() => {
+    const onPageHide = () => {
+      const session = sessionRef.current;
+      if (session) void endVoiceSession(session.phone, session.id, true).catch(() => {});
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, []);
 
-  return { status, error, transcript, connect, disconnect };
+  return {
+    status,
+    error,
+    transcript,
+    muted,
+    connectedAt,
+    pendingTools,
+    connect,
+    disconnect,
+    toggleMute,
+  };
 }

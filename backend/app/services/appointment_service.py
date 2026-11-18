@@ -51,10 +51,25 @@ def _start_datetime(appt: Appointment) -> datetime:
     return datetime.combine(appt.appointment_date, appt.start_time, tzinfo=IST)
 
 
+def change_block_reason(appt: Appointment, now: datetime | None = None) -> str | None:
+    """Why the appointment can't be cancelled or rescheduled, in plain words, or None if it can."""
+    now = now or now_ist()
+    if appt.status != STATUS_BOOKED:
+        return f"It is already {appt.status}."
+    start = _start_datetime(appt)
+    if start <= now:
+        return "It has already taken place."
+    if start - now < CHANGE_NOTICE:
+        return (
+            "It starts in less than 24 hours. Appointments can only be cancelled or "
+            "rescheduled at least 24 hours before they start."
+        )
+    return None
+
+
 def can_change(appt: Appointment, now: datetime | None = None) -> bool:
     """True if the appointment is booked and starts at least 24 hours from now."""
-    now = now or now_ist()
-    return appt.status == STATUS_BOOKED and _start_datetime(appt) - now >= CHANGE_NOTICE
+    return change_block_reason(appt, now) is None
 
 
 async def _reload(db: AsyncSession, appointment_id: uuid.UUID) -> Appointment:

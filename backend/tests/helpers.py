@@ -32,7 +32,6 @@ def t(hour: int, minute: int = 0) -> dt.time:
 
 
 def _test_phone() -> str:
-    # Real Indian mobile numbers never start with 1, so these can't clash with real patients.
     return f"1{random.randint(0, 999_999_999):09d}"
 
 

@@ -3,30 +3,73 @@ import uuid
 import logfire
 from fastapi import APIRouter, HTTPException, Response, status
 
+from app.core.config import get_settings
 from app.core.security import CurrentPatient
-from app.schemas.voice import VoiceSessionRead
+from app.db.session import DbSession
+from app.schemas.voice import ToolCallRequest, ToolCallResult, ToolErrorRead, VoiceSessionRead
 from app.voice import realtime
 from app.voice import session as voice_sessions
-
-from app.db.session import DbSession
-from app.schemas.voice import ToolCallRequest, ToolCallResult, VoiceSessionRead
 from app.voice.tool_executor import execute_tool
 from app.voice.tools import ToolContext
 
 router = APIRouter(prefix="/voice", tags=["voice"])
 
+_LIMIT_ERRORS = {
+    voice_sessions.LimitKind.PER_MINUTE: ToolErrorRead(
+        code="rate_limited",
+        message="Too many requests in a short time. Ask the patient to wait a moment, then try again.",
+    ),
+    voice_sessions.LimitKind.TOTAL: ToolErrorRead(
+        code="session_limit_reached",
+        message="This call has reached its limit of requests. Ask the patient to hang up and call again.",
+    ),
+}
+
 
 @router.post("/session", response_model=VoiceSessionRead, status_code=status.HTTP_201_CREATED)
 async def start_session(patient: CurrentPatient):
+    # Reserve the session first, so a rejected caller never costs an OpenAI session.
+    try:
+        session_id = voice_sessions.create_session(patient.id)
+    except voice_sessions.TooManySessionsError:
+        logfire.warn("voice session rejected: patient already has a call in progress")
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS, detail="You already have a call in progress."
+        ) from None
+
     try:
         secret = await realtime.mint_client_secret()
     except realtime.RealtimeError:
+        voice_sessions.end_session(session_id)
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY, detail="Could not start the voice session"
         ) from None
-    session_id = voice_sessions.create_session(patient.id)
+
     logfire.info("voice session started: session_id={id}", id=str(session_id))
-    return VoiceSessionRead(session_id=session_id, client_secret=secret)
+    return VoiceSessionRead(
+        session_id=session_id,
+        client_secret=secret,
+        expires_in_seconds=get_settings().session_max_minutes * 60,
+    )
+
+
+@router.post("/tool-call", response_model=ToolCallResult)
+async def tool_call(data: ToolCallRequest, patient: CurrentPatient, db: DbSession):
+    voice_session = voice_sessions.get_session(data.session_id)
+    if voice_session is None or voice_session.patient_id != patient.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Voice session not found")
+
+    limit = voice_sessions.try_acquire_tool_call(voice_session)
+    if limit is not None:
+        logfire.warn(
+            "tool call rate limited: session_id={id} limit={limit}",
+            id=str(data.session_id),
+            limit=limit.value,
+        )
+        return ToolCallResult(ok=False, error=_LIMIT_ERRORS[limit])
+
+    ctx = ToolContext(db=db, patient=patient, session_id=data.session_id)
+    return await execute_tool(ctx, data.tool_name, data.arguments)
 
 
 @router.delete("/session/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -36,12 +79,3 @@ async def end_session(session_id: uuid.UUID, patient: CurrentPatient):
         voice_sessions.end_session(session_id)
         logfire.info("voice session ended: session_id={id}", id=str(session_id))
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-@router.post("/tool-call", response_model=ToolCallResult)
-async def tool_call(data: ToolCallRequest, patient: CurrentPatient, db: DbSession):
-    voice_session = voice_sessions.get_session(data.session_id)
-    if voice_session is None or voice_session.patient_id != patient.id:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Voice session not found")
-
-    ctx = ToolContext(db=db, patient=patient, session_id=data.session_id)
-    return await execute_tool(ctx, data.tool_name, data.arguments)

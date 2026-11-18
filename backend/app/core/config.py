@@ -40,8 +40,14 @@ class Settings(BaseSettings):
     realtime_model: str
     realtime_transcription_model: str | None = None
     realtime_voice: str | None = None
+    eval_judge_model: str | None = None
 
     cors_origins: list[str] = []
+
+    max_tool_calls_per_minute: int = 30
+    max_tool_calls_per_session: int = 200
+    max_concurrent_sessions_per_patient: int = 1
+    session_max_minutes: int = 30
 
     @property
     def async_database_url(self) -> str:

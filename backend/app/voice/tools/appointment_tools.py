@@ -152,12 +152,22 @@ async def _two_step(
 async def _get_my_appointments(ctx: ToolContext, args: NoArguments) -> dict[str, Any]:
     appointments = await svc.list_history(ctx.db, ctx.patient.id)
     now = now_ist()
+    items = []
+    for appt in appointments[:MAX_APPOINTMENTS]:
+        reason = svc.change_block_reason(appt, now)
+        items.append(
+            {
+                **_appointment_summary(appt),
+                "can_be_changed": reason is None,
+                "why_not_changeable": reason,
+            }
+        )
     return {
         "count": len(appointments),
-        "appointments": [
-            {**_appointment_summary(a), "can_be_changed": svc.can_change(a, now)}
-            for a in appointments[:MAX_APPOINTMENTS]
-        ],
+        "change_policy": (
+            "Booked appointments can be cancelled or rescheduled up to 24 hours before they start."
+        ),
+        "appointments": items,
     }
 
 

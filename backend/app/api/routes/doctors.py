@@ -34,7 +34,7 @@ async def get_availability(
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Doctor not found") from None
     except DateOutOfRangeError:
         raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
+            status.HTTP_400_BAD_REQUEST, 
             detail=f"Date must be today or within the next {doctor_service.BOOKING_WINDOW_DAYS} days",
         ) from None
 

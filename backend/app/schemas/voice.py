@@ -7,6 +7,7 @@ from pydantic import BaseModel, StringConstraints
 class VoiceSessionRead(BaseModel):
     session_id: uuid.UUID
     client_secret: str  # short-lived key the browser uses to connect to OpenAI
+    expires_in_seconds: int  # the page hangs up when this runs out
 
 
 class ToolCallRequest(BaseModel):

@@ -1,0 +1,197 @@
+[
+  {
+    "scenario": "cancel_too_late_explained",
+    "category": "actions",
+    "run": 1,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "never confirmed",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: still booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Explains that appointments can only be cancelled at least 24 hours before they start, and never says it doesn't know why.",
+        "passed": true,
+        "detail": "The assistant clearly explains the 24-hour cancellation policy and does not express ignorance about the reason for this policy."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Please cancel my appointment with Dr. Arjun Mehta.\n[tool] get_my_appointments({}) -> ok\nAssistant: One moment while I pull up your appointments. I’m sorry, I can’t cancel that appointment because it starts in less than 24 hours. The policy says cancellations must be at least 24 hours before the start time.\nPatient: Why can't I cancel it?\nAssistant: It can’t be cancelled because it starts in less than 24 hours. The hospital only allows cancellations at least 24 hours before the appointment start time."
+  },
+  {
+    "scenario": "cancel_too_late_explained",
+    "category": "actions",
+    "run": 2,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "never confirmed",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: still booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Explains that appointments can only be cancelled at least 24 hours before they start, and never says it doesn't know why.",
+        "passed": true,
+        "detail": "The assistant clearly explains that appointments can only be cancelled at least 24 hours before they start and never says it doesn't know why."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Please cancel my appointment with Dr. Arjun Mehta.\n[tool] get_my_appointments({}) -> ok\nAssistant: One moment while I pull up your appointments. I can’t cancel that appointment because it starts in less than 24 hours. Appointments can only be cancelled or rescheduled at least 24 hours before they start.\nPatient: Why can't I cancel it?\nAssistant: You can’t cancel it because it starts in less than 24 hours. The policy only allows cancelling or rescheduling at least 24 hours before the appointment time."
+  },
+  {
+    "scenario": "cancel_too_late_explained",
+    "category": "actions",
+    "run": 3,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "never confirmed",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: still booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Explains that appointments can only be cancelled at least 24 hours before they start, and never says it doesn't know why.",
+        "passed": true,
+        "detail": "The assistant clearly explained that appointments can only be cancelled at least 24 hours before they start and did not say it didn't know why."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Please cancel my appointment with Dr. Arjun Mehta.\n[tool] get_my_appointments({}) -> ok\nAssistant: One moment while I check your appointments. I can’t cancel that appointment because it starts in less than 24 hours. Appointments can only be cancelled or rescheduled at least 24 hours before they start.\nPatient: Why can't I cancel it?\nAssistant: It can’t be cancelled because it starts in less than 24 hours. The policy says cancellations must be made at least 24 hours before the appointment time."
+  },
+  {
+    "scenario": "language_switch",
+    "category": "language",
+    "run": 1,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called find_doctors",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi.",
+        "passed": true,
+        "detail": "The assistant's first reply is in English and the second reply is in Hindi, meeting the language criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: One moment while I check which dermatology doctors are available. We have Dr. Priya Sharma (fee 600 rupees) and Dr. Rohan Verma (fee 700 rupees). If you’d like, I can check availability for either doctor.\nPatient: अब हिंदी में बताइए, उनकी फीस कितनी है?\nAssistant: जी। Dr. Priya Sharma की फीस 600 rupees है, और Dr. Rohan Verma की फीस 700 rupees है।"
+  },
+  {
+    "scenario": "language_switch",
+    "category": "language",
+    "run": 2,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called find_doctors",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi.",
+        "passed": true,
+        "detail": "The assistant's first reply was in English, and the reply to the second message was in Hindi, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: One moment while I check which dermatology doctors are available. We have Dr. Priya Sharma (Dermatology) with a consultation fee of 600 rupees, and Dr. Rohan Verma (Dermatology) with a consultation fee of 700 rupees. If you’d like, I can check availability for either doctor.\nPatient: अब हिंदी में बताइए, उनकी फीस कितनी है?\nAssistant: Dr. Priya Sharma की फीस 600 rupees है। Dr. Rohan Verma की फीस 700 rupees है।"
+  },
+  {
+    "scenario": "language_switch",
+    "category": "language",
+    "run": 3,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called find_doctors",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi.",
+        "passed": true,
+        "detail": "The first reply is in English and the reply to the second message is in Hindi, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\", \"name\": null}) -> ok\nAssistant: One moment, I’m checking the dermatology specialists for you. We have two dermatologists: Dr. Priya Sharma with a consultation fee of 600 rupees, and Dr. Rohan Verma with a consultation fee of 700 rupees. If you’d like, I can check availability for either of them.\nPatient: अब हिंदी में बताइए, उनकी फीस कितनी है?\nAssistant: डॉ. Priya Sharma की फीस 600 रुपये है, और डॉ. Rohan Verma की फीस 700 रुपये है। अगर आप चाहें, तो मैं इनमें से किसी के लिए उपलब्ध समय भी देख सकता हूँ।"
+  }
+]

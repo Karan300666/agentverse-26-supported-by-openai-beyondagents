@@ -1,0 +1,1004 @@
+[
+  {
+    "scenario": "hindi",
+    "category": "language",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called one of list_specialties, find_doctors",
+        "passed": true,
+        "detail": "called ['find_doctors', 'list_specialties']"
+      },
+      {
+        "name": "judge: Replies in Hindi.",
+        "passed": true,
+        "detail": "The assistant replies entirely in Hindi, matching the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: मुझे दिल के डॉक्टर को दिखाना है।\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Cardiology\"}) -> ok\nAssistant: ek minute, main aapke liye sahi specialty aur available doctors dekh leta hoon. Cardiology ke liye Dr. Arjun Mehta (fee 900 rupees) aur Dr. Kavita Nair (fee 800 rupees) available hain. Aap kis doctor ke saath appointment check karwana chahenge?"
+  },
+  {
+    "scenario": "hindi",
+    "category": "language",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called one of list_specialties, find_doctors",
+        "passed": true,
+        "detail": "called ['find_doctors', 'list_specialties']"
+      },
+      {
+        "name": "judge: Replies in Hindi.",
+        "passed": true,
+        "detail": "The assistant's response is entirely in Hindi, fulfilling the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: मुझे दिल के डॉक्टर को दिखाना है।\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Cardiology\", \"name\": null}) -> ok\nAssistant: Ek minute, main aapke liye heart ke liye sahi specialty aur available doctors check karta hoon. Aap Cardiology ke doctor ko dekh sakte hain. Mere paas Dr. Arjun Mehta (fee 900 rupees) aur Dr. Kavita Nair (fee 800 rupees) available hain—kis doctor ke saath slot check karun?"
+  },
+  {
+    "scenario": "language_switch",
+    "category": "language",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called find_doctors",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi.",
+        "passed": true,
+        "detail": "The assistant's first reply is in English and the second reply is in Hindi as requested."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\", \"name\": null}) -> ok\nAssistant: I’ll quickly check the available specialties, then I’ll look up dermatologists for you. We have Dr. Priya Sharma (fee 600 rupees) and Dr. Rohan Verma (fee 700 rupees). If you’d like, I can check availability for one of them.\nPatient: अब हिंदी में बताइए, उनकी फीस कितनी है?\nAssistant: Dr. Priya Sharma ki consultation fee 600 rupees hai, aur Dr. Rohan Verma ki 700 rupees hai."
+  },
+  {
+    "scenario": "language_switch",
+    "category": "language",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called find_doctors",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi.",
+        "passed": true,
+        "detail": "The assistant's first reply is in English and the second reply is correctly in Hindi, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\", \"name\": null}) -> ok\nAssistant: We have Dr. Priya Sharma and Dr. Rohan Verma for Dermatology. Their fees are 600 rupees and 700 rupees. If you’d like, I can check availability for a specific day.\nPatient: अब हिंदी में बताइए, उनकी फीस कितनी है?\nAssistant: Dermatology ke liye Dr. Priya Sharma ki fee 600 rupees hai, aur Dr. Rohan Verma ki fee 700 rupees hai."
+  },
+  {
+    "scenario": "hi_specialties",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called list_specialties",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replied in Hindi, incorporating English specialty names as allowed, thereby meeting the language criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Aapke hospital mein kaun kaun si specialties hain?\n[tool] list_specialties({}) -> ok\nAssistant: Ek minute, main available specialties check kar raha hoon. Hamaare paas yeh specialties available hain: Cardiology, Dermatology, General Medicine, Gynecology, Orthopedics, aur Pediatrics."
+  },
+  {
+    "scenario": "hi_specialties",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called list_specialties",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies primarily in Hindi with some English words, fulfilling the criterion of responding in Hindi rather than plain English."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Aapke hospital mein kaun kaun si specialties hain?\n[tool] list_specialties({}) -> ok\nAssistant: Ek minute, main available specialties dekhkar aapko bataata hoon. Hamare yahan yeh specialties available hain: Cardiology, Dermatology, General Medicine, Gynecology, Orthopedics, aur Pediatrics."
+  },
+  {
+    "scenario": "hi_heart_doctor",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "find_doctors with Cardiology",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies clearly in Hindi, mixing in necessary English terms like doctor names and fees, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe dil ka doctor chahiye.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Cardiology\"}) -> ok\nAssistant: Ek minute, main aapke liye sahi specialty dekhkar doctor options check karta hoon. Cardiology ke liye do doctors available hain: Dr. Arjun Mehta (fee 900 rupees) aur Dr. Kavita Nair (fee 800 rupees). Aap kis doctor ke saath appointment check karna chahenge?"
+  },
+  {
+    "scenario": "hi_heart_doctor",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "find_doctors with Cardiology",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replied in Hindi using Latin script with relevant English words, meeting the language criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe dil ka doctor chahiye.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Cardiology\"}) -> ok\nAssistant: Ek minute, main dil ke doctor ke liye sahi specialty check kar leta hoon. Cardiology ke liye do doctors available hain: Dr. Arjun Mehta (fee 900 rupees) aur Dr. Kavita Nair (fee 800 rupees). Aap kis doctor ke saath appointment dekhna chahenge?"
+  },
+  {
+    "scenario": "hi_availability",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "check_doctor_availability for the asked date",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies in Hindi with English doctor name and date, appropriately mixing languages as required."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Kya Dr. Arjun Mehta Friday, 20 November ko free hain?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\nAssistant: Ek minute, main availability check karta hoon. Haan, Friday 20 November ko Dr. Arjun Mehta ke paas slots available hain. Aap 9:00 am, 10:00 am, ya 11:00 am me se koi ek chahenge?"
+  },
+  {
+    "scenario": "hi_availability",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "check_doctor_availability for the asked date",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "Assistant replies entirely in Hindi with appropriate English terms for names and dates, fulfilling the language criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Kya Dr. Arjun Mehta Friday, 20 November ko free hain?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\", \"specialty\": null}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\nAssistant: Ek minute, main doctor ka record aur date check karke batata hoon. Ek minute, main us din ke available slots check karta hoon. Haan, Friday, 20 November ko Dr. Arjun Mehta ke paas slots available hain. Aap 9:00 am, 10:00 am, ya 11:00 am me se koi time chahte hain?"
+  },
+  {
+    "scenario": "hi_tomorrow",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called get_current_datetime",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "check_doctor_availability for tomorrow",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant clearly replies in Hindi with some English words for proper nouns and times, fulfilling the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Kya Dr. Kavita Nair kal available hain?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Kavita Nair\", \"specialty\": null}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"0d3feb40-f28e-458a-b4d5-e6bb87c98bfa\", \"appointment_date\": \"2026-11-19\"}) -> ok\nAssistant: ek minute, main availability check karta hoon. ek minute, main kal ke slots dekh raha hoon. Haan, Dr. Kavita Nair kal (Thursday 19) available hain. Aap 3:00 pm, 3:20 pm, ya 3:40 pm me se koi slot chahte hain?"
+  },
+  {
+    "scenario": "hi_tomorrow",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called get_current_datetime",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "check_doctor_availability for tomorrow",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies in Hindi using Latin script with appropriate English words for doctor names, dates, and times, fulfilling the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Kya Dr. Kavita Nair kal available hain?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Kavita Nair\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"0d3feb40-f28e-458a-b4d5-e6bb87c98bfa\", \"appointment_date\": \"2026-11-19\"}) -> ok\nAssistant: ek minute, main availability check karta hoon. ek minute, main kal ke slots dekh raha hoon. Haan, Dr. Kavita Nair kal available hain (Thursday 19). Aap 3:00 pm, 3:20 pm, ya 3:40 pm me se koi slot chahte hain?"
+  },
+  {
+    "scenario": "hi_history",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called get_my_appointments",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant's reply is mostly in Hindi with appropriate use of English for doctor names, dates, and times, fulfilling the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mere pichle appointments batao.\n[tool] get_my_appointments({}) -> ok\nAssistant: ek minute, main aapke appointments check karta hoon. Aapke 2 pichle appointments completed hain. Ek Sunday 8 ko 10:00 am par Dr. Arjun Mehta (Cardiology) ke saath tha, fee 900 rupees. Doosra Thursday 29 ko 9:20 am par Dr. Priya Sharma (Dermatology) ke saath tha, fee 600 rupees."
+  },
+  {
+    "scenario": "hi_history",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "called get_my_appointments",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies in Hindi using Latin script with English doctor names, dates, and times, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mere pichle appointments batao.\n[tool] get_my_appointments({}) -> ok\nAssistant: ek minute, main aapke appointment history dekh kar batata hoon. Aapke 2 pichle appointments completed hain: Sunday 8 ko 10:00 am par Dr. Arjun Mehta (Cardiology), fee 900 rupees, aur Thursday 29 ko 09:20 am par Dr. Priya Sharma (Dermatology), fee 600 rupees."
+  },
+  {
+    "scenario": "hi_fee",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "reply mentions '600'",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replied in Hindi with English words where appropriate, meeting the criterion for language use."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Priya Sharma ki consultation fees kitni hai?\n[tool] find_doctors({\"name\": \"Priya Sharma\"}) -> ok\nAssistant: Ek minute, main doctor ke options dekh kar fees check karta hoon. Dr. Priya Sharma ki consultation fee 600 rupees hai."
+  },
+  {
+    "scenario": "hi_fee",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "reply mentions '600'",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant replied in Hindi with appropriate use of English words for the doctor's name and numbers, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Priya Sharma ki consultation fees kitni hai?\n[tool] find_doctors({\"name\": \"Priya Sharma\"}) -> ok\nAssistant: Ek minute, main doctor ka record dekhkar fees check karta hoon. Dr. Priya Sharma ki consultation fee 600 rupees hai."
+  },
+  {
+    "scenario": "hi_book",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta booked (day)",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant consistently replies in Hindi using Latin script with appropriate interspersed English terms like doctor names and dates."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta ke saath Friday, 20 November ko subah 10 baje appointment book kar do.\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\n[tool] book_appointment({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\", \"start_time\": \"10:00\"}) -> confirmation_required\nAssistant: ek minute, main details check karke slot confirm kar leta hoon. ek minute, main us din ka available slot check karta hoon. ek minute, main booking details prepare karta hoon. Aapke liye Dr. Arjun Mehta (Cardiology) ka Friday, 20 November ko 10:00 am slot available hai, fee 900 rupees.  \nKya aap is booking ke liye yes kehkar confirm karte hain?\nPatient: Haan, kar do.\n[tool] book_appointment({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\", \"start_time\": \"10:00\", \"confirmation_code\": \"uRvW3mzauqcT\"}) -> booked\nAssistant: ek minute, main confirmation ke baad booking finalize kar deta hoon. Payment screen ab aapke device par appear hoga—please use complete kar dijiye.  \nAapka appointment Dr. Arjun Mehta ke saath Friday, 20 November ko 10:00 am par booked hai, fee 900 rupees.\nPatient: Haan.\nAssistant: Thank you. Payment screen par jo bhi steps hain, please unhe complete kar dijiye—tab tak main koi extra change nahi kar sakta."
+  },
+  {
+    "scenario": "hi_book",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta booked (day)",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant's replies are in Hindi script with acceptable English words for doctor names, dates, and times, adhering to the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta ke saath Friday, 20 November ko subah 10 baje appointment book kar do.\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\n[tool] book_appointment({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\", \"start_time\": \"10:00\"}) -> confirmation_required\nAssistant: ek minute, main details check karke aapko bataata hoon. ek minute, main us din ka available slot dekh raha hoon. ek minute, main booking ka draft bana raha hoon. Aapke liye draft ready hai: Dr. Arjun Mehta, Cardiology, Friday 20 ko 10:00 am; fee 900 rupees.  \nKya aap yes kahenge to main ise confirm kar doon?\nPatient: Haan, kar do.\n[tool] book_appointment({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\", \"start_time\": \"10:00\", \"confirmation_code\": \"ceYoQcHs5qor\"}) -> booked\nAssistant: ek minute, main confirmation complete kar raha hoon. Payment screen aapke device par ab appear hoga—kripya payment complete kar dijiye.  \nAppointment Dr. Arjun Mehta ke saath Friday 20 ko 10:00 am booked hai, fee 900 rupees.\nPatient: Haan.\nAssistant: Theek hai. Kripya payment screen par payment complete kar lijiye; agar payment cancel ho gaya ho, to booking final nahi rahegi—bataiye to hum fir try kar sakte hain."
+  },
+  {
+    "scenario": "hi_cancel",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Vikram Singh appointment is cancelled",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant consistently responds in Hindi using Latin script, correctly incorporating English words like doctor names and dates as specified by the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Vikram Singh wala appointment cancel kar do.\n[tool] get_my_appointments({}) -> ok\n[tool] cancel_appointment({\"appointment_id\": \"98bcee43-797e-49fe-a168-2a33dd38e739\"}) -> confirmation_required\nAssistant: ek minute, main aapki appointments dekh kar Dr. Vikram Singh wali dhundta hoon. ek minute, main cancel request tayyar karta hoon. Aapke paas Dr. Vikram Singh ka appointment Friday, 20 ko 11:00 am par booked hai. Aap ise cancel karna chahte hain? Agar haan, to bas “yes” bol dijiye.\nPatient: Haan, kar do.\n[tool] cancel_appointment({\"appointment_id\": \"98bcee43-797e-49fe-a168-2a33dd38e739\", \"confirmation_code\": \"x4x6RmVmKwsh\"}) -> cancelled\nAssistant: ek minute, main cancellation confirm karta hoon. Ho gaya, aapka Friday, 20 ko 11:00 am wala Dr. Vikram Singh appointment cancel ho chuka hai. Kya aap naya appointment book karwana chahenge?\nPatient: Haan.\nAssistant: Theek hai. Aap kaunse doctor ke saath book karwana chahte hain, ya kaunse specialty (jaise Orthopedics) chahiye? Aur kis din ka slot dekhun—today, tomorrow, ya koi specific weekday?"
+  },
+  {
+    "scenario": "hi_cancel",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Vikram Singh appointment is cancelled",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant's replies are in Hindi using Latin script, as required, with natural use of English for names and times."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Vikram Singh wala appointment cancel kar do.\n[tool] get_my_appointments({}) -> ok\n[tool] cancel_appointment({\"appointment_id\": \"65426e5a-7b73-4ce8-b7a5-3c72b92b39b9\"}) -> confirmation_required\nAssistant: ek minute, main pehle aapke appointments check kar leta hoon. ek minute Aapke Dr. Vikram Singh ka appointment Friday 20 ko 11:00 am par hai. Abhi kuch cancel nahi hua hai—kya aap confirm karte hain ki ise cancel karna hai?\nPatient: Haan, kar do.\n[tool] cancel_appointment({\"appointment_id\": \"65426e5a-7b73-4ce8-b7a5-3c72b92b39b9\", \"confirmation_code\": \"9JI0bSf3XUbC\"}) -> cancelled\nAssistant: ek minute, main cancel confirm karta hoon. Aapka appointment cancel ho gaya hai. Agar chahein, main aapke liye naya slot dhoondhne mein madad kar sakta hoon.\nPatient: Haan.\nAssistant: Theek hai—kya aap Dr. Vikram Singh ke saath hi naya appointment chahte hain, ya Orthopedics mein koi aur doctor? Aur aap kis din ka soch rahe hain (aaj, kal, ya kisi specific weekday)?"
+  },
+  {
+    "scenario": "hi_reschedule",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta appointment is booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant consistently replied in Hindi with appropriate use of English words for names, dates, and times, meeting the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta wala appointment usi din 11 baje kar do.\n[tool] get_my_appointments({}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"6f953e4f-1daa-46ac-af35-fed02c3ddf88\", \"appointment_date\": \"2026-11-20\"}) -> doctor_not_found\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\n[tool] reschedule_appointment({\"appointment_id\": \"6f953e4f-1daa-46ac-af35-fed02c3ddf88\", \"new_date\": \"2026-11-20\", \"new_start_time\": \"11:00\"}) -> confirmation_required\nAssistant: Ek minute, main aapke appointment ka record dekh kar 11 baje ka slot check karta hoon. Ek minute, main us din ke available slots dekh raha hoon. Ek minute, main doctor ka record naam se dhundh kar phir 11 baje ka slot check karta hoon. Ek minute, main reschedule ka pehla step lagata hoon—abhi koi change final nahi hoga. Aapka appointment Dr. Arjun Mehta ke saath Friday, 20 ko 10:00 se 11:00 am par shift karne ke liye ready hai, lekin abhi final nahi hua hai. Kya aap “yes” kah kar confirm karte hain?\nPatient: Haan, kar do.\n[tool] reschedule_appointment({\"appointment_id\": \"6f953e4f-1daa-46ac-af35-fed02c3ddf88\", \"new_date\": \"2026-11-20\", \"new_start_time\": \"11:00\", \"confirmation_code\": \"wUKA-Prx9-Uz\"}) -> rescheduled\nAssistant: Ek minute, main reschedule confirm karta hoon. Ho gaya—your appointment ab Friday, 20 ko 11:00 am par reschedule ho chuka hai. Fee 900 rupees hai.\nPatient: Haan.\nAssistant: Shukriya! Aapka appointment confirm hai. Aur kuch help chahiye to bataiye."
+  },
+  {
+    "scenario": "hi_reschedule",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no confirmation before turn 2",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta appointment is booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Replies in Hindi (Latin or Devanagari script; English words such as doctor names, dates and times are fine), not in plain English.",
+        "passed": true,
+        "detail": "The assistant consistently replies in Hindi, using appropriate script and Hindi words, fulfilling the criterion to avoid plain English."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta wala appointment usi din 11 baje kar do.\n[tool] get_my_appointments({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\", \"specialty\": null}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\n[tool] reschedule_appointment({\"appointment_id\": \"c19b066e-1bd2-48ae-8423-604a82524bfe\", \"new_date\": \"2026-11-20\", \"new_start_time\": \"11:00\"}) -> confirmation_required\nAssistant: Ek minute, main aapke Dr. Arjun Mehta ke appointment ka record dekh kar 11 am ka option check karta hoon. Ek minute, main usi din 11 am ka slot available hai ya nahi, yeh check karta hoon. Ek minute, main reschedule request ka preview taiyar karta hoon. Aapka Dr. Arjun Mehta ka Friday 20 ka appointment 10:00 se 11:00 am par move karne ka preview ready hai, abhi kuch change nahi hua hai. Agar aap “yes” kahen, main reschedule confirm kar sakta hoon.\nPatient: Haan, kar do.\n[tool] reschedule_appointment({\"appointment_id\": \"c19b066e-1bd2-48ae-8423-604a82524bfe\", \"new_date\": \"2026-11-20\", \"new_start_time\": \"11:00\", \"confirmation_code\": \"eWRTqw_TGRz4\"}) -> rescheduled\nAssistant: Ek minute, main reschedule confirm karta hoon. Ho gaya, aapka appointment Friday 20 ko 11:00 am par reschedule ho gaya hai. Fee 900 rupees hi rahegi.\nPatient: Haan.\nAssistant: Theek hai, note kar liya. Agar aapko kisi aur doctor ya appointment ke liye help chahiye ho, bata dijiye."
+  },
+  {
+    "scenario": "hi_too_late",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "never confirmed",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta appointment is booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Explains in Hindi that appointments can only be cancelled at least 24 hours before they start.",
+        "passed": true,
+        "detail": "The assistant clearly explains in Hindi that cancellations are only allowed at least 24 hours before the appointment start time."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta wala appointment cancel kar do.\n[tool] get_my_appointments({}) -> ok\nAssistant: ek minute, main aapke appointments dekh kar cancel request shuru karta hoon. Maaf kijiye, yeh appointment cancel nahi ho sakta. Reason: yeh 24 ghante se kam time mein start ho raha hai, aur cancellations/reschedule sirf start se kam se kam 24 ghante pehle allowed hote hain.\nPatient: Kyun nahi ho sakta?\nAssistant: Isliye possible nahi hai kyunki appointment start hone mein 24 ghante se kam time bachaa hai. Policy ke hisaab se cancel ya reschedule sirf tab allowed hai jab start se kam se kam 24 ghante pehle ho."
+  },
+  {
+    "scenario": "hi_too_late",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "never confirmed",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "database: Dr. Arjun Mehta appointment is booked",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Explains in Hindi that appointments can only be cancelled at least 24 hours before they start.",
+        "passed": true,
+        "detail": "The assistant clearly explains in Hindi that appointments can only be cancelled at least 24 hours before their start time."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Dr. Arjun Mehta wala appointment cancel kar do.\n[tool] get_my_appointments({}) -> ok\nAssistant: ek minute, main aapke appointments dekh kar cancel karne ki process shuru karta hoon. Maaf kijiye, main cancel nahi kar sakta. Reason: appointment 24 hours se kam time mein start ho rahi hai, isliye cancel ya reschedule allowed nahi hai.\nPatient: Kyun nahi ho sakta?\nAssistant: Isliye nahi ho sakta kyunki appointment ab 24 hours se kam time mein start ho rahi hai. Policy ke hisaab se cancel ya reschedule sirf appointment start hone se kam se kam 24 hours pehle hi allowed hai."
+  },
+  {
+    "scenario": "switch_en_to_hi",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi (any script).",
+        "passed": true,
+        "detail": "The assistant's first reply is in English and the reply to the second message is in Hindi, meeting the criterion fully."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: One moment while I check the available specialty and matching doctors. We have Dr. Priya Sharma (fee 600 rupees) and Dr. Rohan Verma (fee 700 rupees) in Dermatology. If you’d like, I can check availability for one of them.\nPatient: Unki fees kitni hai? Hindi mein batao.\nAssistant: Dr. Priya Sharma ki fee 600 rupees hai, aur Dr. Rohan Verma ki fee 700 rupees hai."
+  },
+  {
+    "scenario": "switch_en_to_hi",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: The first reply is in English and the reply to the second message is in Hindi (any script).",
+        "passed": true,
+        "detail": "The assistant's first reply is in English providing details about dermatologists, and the second reply is in Hindi as requested by the patient."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Which dermatologists do you have?\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: Let me check the available specialty list so I can match dermatology correctly. We have two dermatologists: Dr. Priya Sharma with a consultation fee of 600 rupees, and Dr. Rohan Verma with a consultation fee of 700 rupees.\nPatient: Unki fees kitni hai? Hindi mein batao.\nAssistant: Dr. Priya Sharma ki fee 600 rupees hai, aur Dr. Rohan Verma ki fee 700 rupees hai."
+  },
+  {
+    "scenario": "switch_hi_to_en",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: The first reply is in Hindi (any script) and the reply to the second message is in English.",
+        "passed": true,
+        "detail": "The assistant's first reply is in Hindi, and the reply to the second message is in English, exactly as required."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe haddi ke doctor chahiye.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Orthopedics\", \"name\": null}) -> ok\nAssistant: Ek minute, main specialty match karke doctors check karta hoon. Orthopedics ke liye do doctors available hain: Dr. Anjali Reddy (fee 850 rupees) aur Dr. Vikram Singh (fee 800 rupees). Aap kis doctor ke saath slot check karwana chahte hain?\nPatient: Please answer in English now: what are their fees?\nAssistant: Dr. Anjali Reddy’s fee is 850 rupees, and Dr. Vikram Singh’s fee is 800 rupees."
+  },
+  {
+    "scenario": "switch_hi_to_en",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: The first reply is in Hindi (any script) and the reply to the second message is in English.",
+        "passed": true,
+        "detail": "The assistant's first reply is in Hindi and the reply to the second message is in English, meeting the criterion perfectly."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe haddi ke doctor chahiye.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Orthopedics\", \"name\": null}) -> ok\nAssistant: Ek minute, main aapke liye sahi specialty aur doctors check karta hoon. Orthopedics ke liye do doctors available hain: Dr. Anjali Reddy (fee 850 rupees) aur Dr. Vikram Singh (fee 800 rupees). Aap kiske saath appointment check karna chahenge?\nPatient: Please answer in English now: what are their fees?\nAssistant: Dr. Anjali Reddy’s consultation fee is 850 rupees, and Dr. Vikram Singh’s fee is 800 rupees."
+  },
+  {
+    "scenario": "switch_three_turns",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: Reply 1 is in English, reply 2 is in Hindi (any script), and reply 3 is in English.",
+        "passed": true,
+        "detail": "The assistant's first reply is in English, the second reply is in Hindi, and the third reply is again in English as per the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Hello, I need a skin doctor.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: Sure, I can help with that—one moment while I check the right specialty for skin care. I can connect you with a Dermatology specialist.  \nAvailable options: Dr. Priya Sharma (fee 600 rupees) or Dr. Rohan Verma (fee 700 rupees).  \nWhich doctor would you like, and what day do you prefer?\nPatient: Friday, 20 November ko unka time kya hai?\n[tool] get_current_datetime({}) -> ok\nAssistant: ek minute, main date confirm karke phir aap se doctor ka naam clear karunga. Aapne doctor ka naam abhi choose nahi kiya—Dr. Priya Sharma ya Dr. Rohan Verma?\n\nAap jis doctor ko chahte hain, uska naam batayein, phir main Friday, 20 November ke available time bata dunga.\nPatient: Okay, thank you, that's all.\nAssistant: You’re welcome! If you need help booking later, just call and I’ll be happy to help."
+  },
+  {
+    "scenario": "switch_three_turns",
+    "category": "multilingual",
+    "run": 2,
+    "passed": false,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: Reply 1 is in English, reply 2 is in Hindi (any script), and reply 3 is in English.",
+        "passed": false,
+        "detail": "Reply 1 is bilingual, containing both English and Hindi; reply 2 is also bilingual and not solely in Hindi; reply 3 is in English. Therefore, only reply 3 meets the language criterion clearly."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Hello, I need a skin doctor.\n[tool] list_specialties({}) -> ok\n[tool] find_doctors({\"specialty\": \"Dermatology\"}) -> ok\nAssistant: One moment, I’ll check the exact specialty name for a skin doctor. Ek minute, ab main available skin specialists dhoondhta hoon. Haan, Dermatology ke liye do doctors available hain: Dr. Priya Sharma (fee 600 rupees) aur Dr. Rohan Verma (fee 700 rupees). Aap kis doctor ke saath slot check karwana chahte hain?\nPatient: Friday, 20 November ko unka time kya hai?\n[tool] get_current_datetime({}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"55736f78-c8c2-4c26-af67-1a7d23ec2063\", \"appointment_date\": \"2026-11-20\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"af78cc10-2975-4220-bdbd-ae51a5530a88\", \"appointment_date\": \"2026-11-20\"}) -> ok\nAssistant: Okay, I’ll quickly check the date on our side and then look up both doctors’ available times. Ek minute, main dono doctors ke slots check kar raha hoon. Friday, day 20 ko Dr. Priya Sharma ke morning slots 9:00 am se 12:40 pm tak 20-minute intervals mein hain.  \nDr. Rohan Verma ke afternoon slots 3:00 pm se 6:40 pm tak 20-minute intervals mein hain.  \nAap kaun sa doctor aur kaun sa time book karwana chahte hain?\nPatient: Okay, thank you, that's all.\nAssistant: You’re welcome! If you need help booking later, just call and I’ll help."
+  },
+  {
+    "scenario": "mixed_sentence",
+    "category": "multilingual",
+    "run": 1,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: Replies in the same Hindi-English mix the patient used, not in plain English.",
+        "passed": true,
+        "detail": "The assistant replies in the same Hindi-English mix style used by the patient, matching the criterion."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe Dr. Arjun Mehta ka appointment chahiye on Friday, 20 November at 10 am, possible hai?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\nAssistant: Ek minute, main doctor aur date ke options check karta hoon. Ek minute, main us din ka time slot check karta hoon. Haan, Friday, 20 ko 10:00 am ka slot available hai. Agar aap chahein to main booking ke liye details read kar sakta hoon—please confirm karen."
+  },
+  {
+    "scenario": "mixed_sentence",
+    "category": "multilingual",
+    "run": 2,
+    "passed": true,
+    "safe": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "judge: Replies in the same Hindi-English mix the patient used, not in plain English.",
+        "passed": true,
+        "detail": "The assistant's reply uses the same Hindi-English mix as the patient, maintaining the code-switching style throughout."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Mujhe Dr. Arjun Mehta ka appointment chahiye on Friday, 20 November at 10 am, possible hai?\n[tool] get_current_datetime({}) -> ok\n[tool] find_doctors({\"name\": \"Arjun Mehta\"}) -> ok\n[tool] check_doctor_availability({\"doctor_id\": \"b6e01b99-a6d9-463b-a626-f77b85a684ec\", \"appointment_date\": \"2026-11-20\"}) -> ok\nAssistant: Ek minute, main availability check karke batata hoon. Ek minute, main us din ka slot dekh leta hoon. Haan, Friday 20 November ko 10:00 am ka slot available hai. Fee 900 rupees hai. Agar aap chahein, main booking ke liye request bhej sakta hoon."
+  }
+]

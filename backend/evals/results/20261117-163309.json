@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "greeting",
+    "category": "small_talk",
+    "run": 1,
+    "passed": false,
+    "error": null,
+    "checks": [
+      {
+        "name": "no tool calls",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Greets the patient warmly and offers help with doctors or appointments, in at most three sentences.",
+        "passed": false,
+        "detail": "check crashed: NotFoundError('Error code: 404 - The model `gpt-6` does not exist or you do not have access to it.')"
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Hello!\nAssistant: Hi there! You’ve reached the hospital reception. How can I help you today—finding a doctor, checking availability, or managing your appointment?"
+  }
+]

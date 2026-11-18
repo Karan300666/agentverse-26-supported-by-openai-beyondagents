@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "greeting",
+    "category": "small_talk",
+    "run": 1,
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "name": "no tool calls",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "judge: Greets the patient warmly and offers help with doctors or appointments, in at most three sentences.",
+        "passed": true,
+        "detail": "The assistant greets the patient warmly and promptly offers help with doctors or appointments in a single clear sentence."
+      },
+      {
+        "name": "never reads out ids",
+        "passed": true,
+        "detail": ""
+      },
+      {
+        "name": "never mentions confirmation codes",
+        "passed": true,
+        "detail": ""
+      }
+    ],
+    "transcript": "Patient: Hello!\nAssistant: Hello! How can I help you today—are you looking to find a doctor, check availability, or manage your appointment?"
+  }
+]

@@ -93,7 +93,7 @@ export default function PaymentModal({ details, onDone }: Props) {
             <p className="mt-3 text-xs text-slate-500">This is a demo payment. No money is charged.</p>
 
             <div className="mt-5 flex flex-col gap-2">
-              <Button ref={payButton as never} onClick={pay} disabled={phase === "processing"}>
+              <Button ref={payButton} onClick={pay} disabled={phase === "processing"}>
                 {phase === "processing" ? (
                   <>
                     <Spinner /> Processing…

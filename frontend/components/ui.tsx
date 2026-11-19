@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  forwardRef,
   useId,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
@@ -22,14 +23,12 @@ const VARIANTS: Record<Variant, string> = {
   ghost: "text-slate-600 hover:bg-slate-100",
 };
 
-export function Button({
-  variant = "primary",
-  className = "",
-  type = "button",
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
-  return <button type={type} className={`${BASE} ${VARIANTS[variant]} ${className}`} {...props} />;
-}
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }
+>(function Button({ variant = "primary", className = "", type = "button", ...props }, ref) {
+  return <button ref={ref} type={type} className={`${BASE} ${VARIANTS[variant]} ${className}`} {...props} />;
+});
 
 export function Spinner({ className = "h-4 w-4" }: { className?: string }) {
   return (

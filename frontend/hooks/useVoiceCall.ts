@@ -2,10 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { callTool, createVoiceSession, endVoiceSession, type ToolCallResult } from "@/lib/api";
+import { recordLatency } from "@/lib/latency";
 
 const REALTIME_CALLS_URL = "https://api.openai.com/v1/realtime/calls";
+const RECORD_LATENCY = process.env.NEXT_PUBLIC_SHOW_METRICS === "true";
 
 export type CallStatus = "idle" | "connecting" | "connected" | "error";
+
+/** What is happening in the conversation right now (while connected). */
+export type Activity = "ready" | "listening" | "thinking" | "speaking";
 
 export type TranscriptLine = {
   id: string;
@@ -22,6 +27,17 @@ export type PaymentDetails = {
   time: string; // HH:MM
 };
 
+/** A completed booking, cancellation or reschedule, as confirmed by the backend. */
+export type Confirmation = {
+  kind: "booked" | "cancelled" | "rescheduled";
+  doctor: string;
+  specialty: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  feeAmount: number | null;
+  currency: string;
+};
+
 type Options = {
   /** Resolves true if the (simulated) payment was completed, false if the patient cancelled. */
   requestPayment: (details: PaymentDetails) => Promise<boolean>;
@@ -33,6 +49,8 @@ type FunctionCallItem = {
   call_id?: string;
   arguments?: string;
 };
+
+const CONFIRMED_STATUSES = new Set(["booked", "cancelled", "rescheduled"]);
 
 function confirmationCodeOf(args: string): string | undefined {
   try {
@@ -58,13 +76,31 @@ function toPaymentDetails(data: Record<string, unknown> | null): PaymentDetails 
   };
 }
 
+function toConfirmation(data: Record<string, unknown> | null): Confirmation | null {
+  const status = data?.status;
+  const appointment = data?.appointment as Record<string, unknown> | undefined;
+  if (typeof status !== "string" || !CONFIRMED_STATUSES.has(status) || !appointment) return null;
+  const fee = Number(appointment.fee_amount);
+  return {
+    kind: status as Confirmation["kind"],
+    doctor: String(appointment.doctor ?? ""),
+    specialty: String(appointment.specialty ?? ""),
+    date: String(appointment.date ?? ""),
+    time: String(appointment.time ?? ""),
+    feeAmount: Number.isFinite(fee) ? fee : null,
+    currency: String(appointment.currency ?? "INR"),
+  };
+}
+
 export function useVoiceCall({ requestPayment }: Options) {
   const [status, setStatus] = useState<CallStatus>("idle");
+  const [activity, setActivity] = useState<Activity>("ready");
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [muted, setMuted] = useState(false);
   const [connectedAt, setConnectedAt] = useState<number | null>(null);
   const [pendingTools, setPendingTools] = useState(0);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dcRef = useRef<RTCDataChannel | null>(null);
@@ -73,6 +109,17 @@ export function useVoiceCall({ requestPayment }: Options) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionRef = useRef<{ id: string; phone: string } | null>(null);
   const handledCalls = useRef<Set<string>>(new Set());
+  const speechStoppedAt = useRef<number | null>(null);
+  const toolsThisTurn = useRef(0);
+  const pendingSample = useRef<number | null>(null);
+
+  /** Save the previous turn's time once we know whether it used tools. */
+  const flushSample = useCallback(() => {
+    if (pendingSample.current !== null && RECORD_LATENCY) {
+      recordLatency(pendingSample.current, toolsThisTurn.current > 0);
+    }
+    pendingSample.current = null;
+  }, []);
   const proposals = useRef<Map<string, PaymentDetails>>(new Map());
   const mutedRef = useRef(false);
   const requestPaymentRef = useRef(requestPayment);
@@ -121,6 +168,11 @@ export function useVoiceCall({ requestPayment }: Options) {
       const details = toPaymentDetails(result.data);
       if (typeof code === "string" && details) proposals.current.set(code, details);
     }
+
+    if (result.ok) {
+      const done = toConfirmation(result.data);
+      if (done) setConfirmation(done);
+    }
     return result;
   }, []);
 
@@ -129,6 +181,7 @@ export function useVoiceCall({ requestPayment }: Options) {
       const fresh = calls.filter((c) => c.call_id && !handledCalls.current.has(c.call_id));
       if (fresh.length === 0) return;
       fresh.forEach((c) => handledCalls.current.add(c.call_id as string));
+      toolsThisTurn.current += fresh.length;
 
       setPendingTools((n) => n + fresh.length);
       await Promise.all(
@@ -179,6 +232,30 @@ export function useVoiceCall({ requestPayment }: Options) {
       }
 
       switch (event.type) {
+        case "input_audio_buffer.speech_started":
+          setActivity("listening");
+          break;
+        case "input_audio_buffer.speech_stopped":
+          flushSample(); // the previous turn is over: save it with its tool count
+          speechStoppedAt.current = performance.now();
+          toolsThisTurn.current = 0;
+          setActivity("thinking");
+          break;
+        case "output_audio_buffer.started":
+          if (speechStoppedAt.current !== null) {
+            pendingSample.current = Math.round(performance.now() - speechStoppedAt.current);
+          }
+          speechStoppedAt.current = null;
+          setActivity("speaking");
+          break;
+          speechStoppedAt.current = null;
+          setActivity("speaking");
+          break;
+        case "output_audio_buffer.stopped":
+        case "output_audio_buffer.cleared":
+          // Don't overwrite "listening" when the patient interrupted the assistant.
+          setActivity((prev) => (prev === "speaking" ? "ready" : prev));
+          break;
         case "conversation.item.input_audio_transcription.completed":
           addLine({
             id: `patient-${event.item_id}`,
@@ -205,10 +282,11 @@ export function useVoiceCall({ requestPayment }: Options) {
         }
       }
     },
-    [addLine, handleToolCalls],
+    [addLine, flushSample, handleToolCalls],
   );
 
   const cleanup = useCallback(() => {
+     flushSample();
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -222,11 +300,13 @@ export function useVoiceCall({ requestPayment }: Options) {
     streamRef.current = null;
     handledCalls.current.clear();
     proposals.current.clear();
+    speechStoppedAt.current = null;
     mutedRef.current = false;
     setMuted(false);
     setConnectedAt(null);
     setPendingTools(0);
-  }, []);
+    setActivity("ready");
+  }, [flushSample]);
 
   const disconnect = useCallback(async () => {
     const session = sessionRef.current;
@@ -253,11 +333,14 @@ export function useVoiceCall({ requestPayment }: Options) {
     setMuted(next);
   }, []);
 
+  const dismissConfirmation = useCallback(() => setConfirmation(null), []);
+
   const connect = useCallback(
     async (phone: string) => {
       setStatus("connecting");
       setError(null);
       setTranscript([]);
+      setConfirmation(null);
       try {
         const session = await createVoiceSession(phone);
         sessionRef.current = { id: session.session_id, phone };
@@ -287,6 +370,7 @@ export function useVoiceCall({ requestPayment }: Options) {
         dc.onmessage = handleMessage;
         dc.onopen = () => {
           setStatus("connected");
+          setActivity("ready");
           setConnectedAt(Date.now());
         };
 
@@ -323,7 +407,7 @@ export function useVoiceCall({ requestPayment }: Options) {
 
         if (session) {
           // Free the patient's single call slot if the connection failed after the session started.
-          void endVoiceSession(session.phone, session.id).catch(() => {});
+          void endVoiceSession(session.phone, session.id).catch(() => { });
         }
       }
     },
@@ -334,7 +418,7 @@ export function useVoiceCall({ requestPayment }: Options) {
   useEffect(() => {
     const onPageHide = () => {
       const session = sessionRef.current;
-      if (session) void endVoiceSession(session.phone, session.id, true).catch(() => {});
+      if (session) void endVoiceSession(session.phone, session.id, true).catch(() => { });
     };
     window.addEventListener("pagehide", onPageHide);
     return () => window.removeEventListener("pagehide", onPageHide);
@@ -342,13 +426,16 @@ export function useVoiceCall({ requestPayment }: Options) {
 
   return {
     status,
+    activity,
     error,
     transcript,
     muted,
     connectedAt,
     pendingTools,
+    confirmation,
     connect,
     disconnect,
     toggleMute,
+    dismissConfirmation,
   };
 }

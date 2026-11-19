@@ -106,7 +106,7 @@ export default function LoginFlow({ onSuccess }: Props) {
 
         {step === "choose" && (
           <div className="mt-2 flex flex-col gap-3">
-            <h1 className="text-xl font-semibold text-slate-900">Welcome</h1>
+                         <h1 className="text-xl font-semibold text-slate-900">Welcome to Clinora</h1>
             <p className="text-sm text-slate-600">Are you a new or an existing patient?</p>
             <Button onClick={() => choose("new")}>I&apos;m a new patient</Button>
             <Button variant="secondary" onClick={() => choose("existing")}>

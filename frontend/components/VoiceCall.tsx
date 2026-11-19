@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import ConfirmationCard from "@/components/ConfirmationCard";
+import LatencyStats from "@/components/LatencyState";
 import PaymentModal from "@/components/PaymentModal";
 import {
   Alert,
@@ -11,11 +13,12 @@ import {
   MicOffIcon,
   Spinner,
 } from "@/components/ui";
-import { useVoiceCall, type PaymentDetails } from "@/hooks/useVoiceCall";
+import { useVoiceCall, type Activity, type PaymentDetails } from "@/hooks/useVoiceCall";
 import type { Patient } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 
 const SHOW_TOOL_DEBUG = process.env.NEXT_PUBLIC_SHOW_TOOL_DEBUG === "true";
+const SHOW_METRICS = process.env.NEXT_PUBLIC_SHOW_METRICS === "true";
 
 const EXAMPLES = [
   "I'd like to book a cardiologist for tomorrow.",
@@ -23,6 +26,13 @@ const EXAMPLES = [
   "What appointments do I have?",
   "Please cancel my appointment.",
 ];
+
+const ACTIVITY_TEXT: Record<Activity, string> = {
+  ready: "Your turn to speak",
+  listening: "Listening…",
+  thinking: "Thinking…",
+  speaking: "Speaking…",
+};
 
 const BUBBLE = {
   patient: "self-end bg-teal-600 text-white",
@@ -33,6 +43,20 @@ const BUBBLE = {
 type PaymentRequest = { details: PaymentDetails; resolve: (paid: boolean) => void };
 
 type Props = { patient: Patient; onLogout: () => void };
+
+function SpeakingBars() {
+  return (
+    <span className="flex h-8 items-center gap-1" aria-hidden="true">
+      {[0, 150, 300, 450].map((delay) => (
+        <span
+          key={delay}
+          className="h-6 w-1.5 animate-bounce rounded-full bg-white"
+          style={{ animationDelay: `${delay}ms` }}
+        />
+      ))}
+    </span>
+  );
+}
 
 export default function VoiceCall({ patient, onLogout }: Props) {
   const [payment, setPayment] = useState<PaymentRequest | null>(null);
@@ -56,10 +80,23 @@ export default function VoiceCall({ patient, onLogout }: Props) {
     current?.resolve(paid);
   }, []);
 
-  const { status, error, transcript, muted, connectedAt, pendingTools, connect, disconnect, toggleMute } =
-    useVoiceCall({ requestPayment });
+  const {
+    status,
+    activity,
+    error,
+    transcript,
+    muted,
+    connectedAt,
+    pendingTools,
+    confirmation,
+    connect,
+    disconnect,
+    toggleMute,
+    dismissConfirmation,
+  } = useVoiceCall({ requestPayment });
 
   const inCall = status === "connecting" || status === "connected";
+  const live = status === "connected" && !muted;
 
   // If the call ends while the payment screen is open, close it as cancelled.
   useEffect(() => {
@@ -90,15 +127,28 @@ export default function VoiceCall({ patient, onLogout }: Props) {
   const statusText =
     status === "connecting"
       ? "Connecting…"
-      : status === "connected"
-        ? pendingTools > 0
-          ? "Checking details…"
+      : status === "error"
+        ? "Couldn't connect"
+        : status !== "connected"
+          ? "Not connected"
           : muted
             ? "Microphone muted"
-            : "Connected"
-        : status === "error"
-          ? "Couldn't connect"
-          : "Not connected";
+            : pendingTools > 0
+              ? "Checking details…"
+              : ACTIVITY_TEXT[activity];
+
+  const circle =
+    status === "connecting"
+      ? "bg-sky-100 text-sky-700"
+      : status !== "connected"
+        ? "bg-slate-100 text-slate-500"
+        : muted
+          ? "bg-slate-200 text-slate-600"
+          : activity === "listening"
+            ? "bg-sky-600 text-white"
+            : activity === "speaking"
+              ? "bg-teal-600 text-white"
+              : "border border-teal-200 bg-teal-50 text-teal-700";
 
   const visible = transcript.filter((line) => SHOW_TOOL_DEBUG || line.role !== "tool");
 
@@ -122,22 +172,22 @@ export default function VoiceCall({ patient, onLogout }: Props) {
           <h1 className="self-start text-lg font-semibold text-slate-900">Hello, {patient.name.split(" ")[0]}</h1>
 
           <div className="relative flex h-28 w-28 items-center justify-center">
-            {status === "connected" && !muted && (
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-300 opacity-30" />
+            {live && (activity === "speaking" || activity === "listening") && (
+              <span
+                className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-30 ${
+                  activity === "speaking" ? "bg-teal-300" : "bg-sky-300"
+                }`}
+              />
             )}
-            <span
-              className={`relative flex h-24 w-24 items-center justify-center rounded-full ${
-                status === "connected"
-                  ? "bg-teal-600 text-white"
-                  : status === "connecting"
-                    ? "bg-sky-100 text-sky-700"
-                    : "bg-slate-100 text-slate-500"
-              }`}
-            >
+            <span className={`relative flex h-24 w-24 items-center justify-center rounded-full transition-colors ${circle}`}>
               {status === "connecting" ? (
                 <Spinner className="h-8 w-8" />
               ) : muted ? (
                 <MicOffIcon className="h-9 w-9" />
+              ) : live && activity === "speaking" ? (
+                <SpeakingBars />
+              ) : live && (activity === "thinking" || pendingTools > 0) ? (
+                <Spinner className="h-8 w-8" />
               ) : (
                 <MicIcon className="h-9 w-9" />
               )}
@@ -162,20 +212,11 @@ export default function VoiceCall({ patient, onLogout }: Props) {
           )}
 
           <div className="grid w-full grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              aria-pressed={muted}
-              disabled={status !== "connected"}
-              onClick={toggleMute}
-            >
+            <Button variant="secondary" aria-pressed={muted} disabled={status !== "connected"} onClick={toggleMute}>
               {muted ? <MicOffIcon className="h-4 w-4" /> : <MicIcon className="h-4 w-4" />}
               {muted ? "Unmute" : "Mute"}
             </Button>
-            <Button
-              variant="secondary"
-              aria-pressed={showCaptions}
-              onClick={() => setShowCaptions((v) => !v)}
-            >
+            <Button variant="secondary" aria-pressed={showCaptions} onClick={() => setShowCaptions((v) => !v)}>
               <CaptionsIcon className="h-4 w-4" />
               Captions {showCaptions ? "on" : "off"}
             </Button>
@@ -184,60 +225,64 @@ export default function VoiceCall({ patient, onLogout }: Props) {
           {error && (
             <div className="w-full">
               <Alert>
-                {error === "Unknown patient"
-                  ? "Your account was not found. Please log out and log in again."
-                  : error}
+                {error === "Unknown patient" ? "Your account was not found. Please log out and log in again." : error}
               </Alert>
             </div>
           )}
+
+          {SHOW_METRICS && <LatencyStats />}
         </section>
 
-        {/* Conversation card */}
-        <section className="flex min-h-[22rem] flex-col rounded-2xl border border-slate-200 bg-white shadow-sm md:min-h-[32rem]">
-          <div className="border-b border-slate-100 px-5 py-3">
-            <h2 className="text-sm font-semibold text-slate-900">Conversation</h2>
-          </div>
+        {/* Right column: confirmation + conversation */}
+        <div className="flex flex-col gap-4">
+          {confirmation && <ConfirmationCard confirmation={confirmation} onClose={dismissConfirmation} />}
 
-          {!showCaptions ? (
-            <div className="flex flex-1 items-center justify-center p-6 text-sm text-slate-500">
-              Captions are off. The assistant is still speaking to you.
+          <section className="flex min-h-[22rem] flex-1 flex-col rounded-2xl border border-slate-200 bg-white shadow-sm md:min-h-[32rem]">
+            <div className="border-b border-slate-100 px-5 py-3">
+              <h2 className="text-sm font-semibold text-slate-900">Conversation</h2>
             </div>
-          ) : visible.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-              <p className="text-sm text-slate-500">
-                {status === "connected"
-                  ? "Say hello to get started."
-                  : "Press Start call and talk to the receptionist. You could say:"}
-              </p>
-              {status !== "connected" && (
-                <ul className="space-y-1.5 text-sm text-slate-600">
-                  {EXAMPLES.map((example) => (
-                    <li key={example} className="rounded-full bg-sky-50 px-3 py-1">
-                      “{example}”
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ) : (
-            <div
-              ref={logRef}
-              role="log"
-              aria-live="polite"
-              className="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
-              style={{ maxHeight: "32rem" }}
-            >
-              {visible.map((line) => (
-                <div
-                  key={line.id}
-                  className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm ${BUBBLE[line.role]}`}
-                >
-                  {line.text}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+
+            {!showCaptions ? (
+              <div className="flex flex-1 items-center justify-center p-6 text-sm text-slate-500">
+                Captions are off. The assistant is still speaking to you.
+              </div>
+            ) : visible.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+                <p className="text-sm text-slate-500">
+                  {status === "connected"
+                    ? "Say hello to get started."
+                    : "Press Start call and talk to the receptionist. You could say:"}
+                </p>
+                {status !== "connected" && (
+                  <ul className="space-y-1.5 text-sm text-slate-600">
+                    {EXAMPLES.map((example) => (
+                      <li key={example} className="rounded-full bg-sky-50 px-3 py-1">
+                        “{example}”
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <div
+                ref={logRef}
+                role="log"
+                aria-live="polite"
+                className="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
+                style={{ maxHeight: "32rem" }}
+              >
+                {visible.map((line) => (
+                  <div
+                    key={line.id}
+                    className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm ${BUBBLE[line.role]}`}
+                  >
+                    {line.text}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </main>
 
       {payment && <PaymentModal details={payment.details} onDone={finishPayment} />}

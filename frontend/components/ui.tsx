@@ -85,7 +85,10 @@ export function BrandMark() {
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white">
         <CrossIcon className="h-5 w-5" />
       </span>
-      <span className="text-base font-semibold text-slate-900">Hospital Voice Assistant</span>
+      <span className="leading-tight">
+        <span className="block text-base font-semibold text-slate-900">Clinora</span>
+        <span className="block text-xs text-slate-500">AI voice receptionist</span>
+      </span>
     </div>
   );
 }

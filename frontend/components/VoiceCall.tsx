@@ -18,7 +18,7 @@ import type { Patient } from "@/lib/api";
 import { formatDuration } from "@/lib/format";
 
 const SHOW_TOOL_DEBUG = process.env.NEXT_PUBLIC_SHOW_TOOL_DEBUG === "true";
-const SHOW_METRICS = process.env.NEXT_PUBLIC_SHOW_METRICS === "true";
+const SHOW_METRICS = process.env.NEXT_SHOW_METRICS === "true";
 
 const EXAMPLES = [
   "I'd like to book a cardiologist for tomorrow.",
